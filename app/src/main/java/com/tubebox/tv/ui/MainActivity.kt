@@ -21,7 +21,6 @@ import com.tubebox.tv.data.UpdateChecker
 import com.tubebox.tv.data.VideoItem
 import com.tubebox.tv.data.WatchHistoryStore
 import com.tubebox.tv.data.YouTubeRepository
-import com.tubebox.tv.update.UpdateManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.schabi.newpipe.extractor.Page

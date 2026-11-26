@@ -6,7 +6,6 @@ import org.schabi.newpipe.extractor.Image
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.Page
 import org.schabi.newpipe.extractor.ServiceList
-import org.schabi.newpipe.extractor.kiosk.KioskInfo
 import org.schabi.newpipe.extractor.search.SearchInfo
 import org.schabi.newpipe.extractor.stream.AudioStream
 import org.schabi.newpipe.extractor.stream.StreamInfo
@@ -16,70 +15,59 @@ import org.schabi.newpipe.extractor.stream.VideoStream
 
 object YouTubeRepository {
 
-    const val KIOSK_MUSIC = "trending_music"
-    const val KIOSK_GAMING = "trending_gaming"
-    const val KIOSK_LIVE = "live"
-    const val KIOSK_PODCASTS = "trending_podcasts_episodes"
+    const val CATEGORY_HOME = "home"
+    const val CATEGORY_MUSIC = "music"
+    const val CATEGORY_GAMING = "gaming"
+    const val CATEGORY_LIVE = "live"
+    const val CATEGORY_PODCASTS = "podcasts"
+
+    private val categoryQueries = mapOf(
+        CATEGORY_HOME to "vídeos em alta brasil",
+        CATEGORY_MUSIC to "músicas mais tocadas brasil clipes oficiais",
+        CATEGORY_GAMING to "gameplay jogos brasil",
+        CATEGORY_LIVE to "ao vivo agora brasil",
+        CATEGORY_PODCASTS to "podcast brasil episódio completo"
+    )
 
     private val ytService
         get() = NewPipe.getService(ServiceList.YouTube.serviceId)
 
-    suspend fun loadHomeFeed(): FeedPage = withContext(Dispatchers.IO) {
-        // Combine active Brazilian kiosks so Home is always rich and fresh
-        val combined = mutableListOf<VideoItem>()
-        val seenUrls = hashSetOf<String>()
-
-        val kioskOrder = listOf(KIOSK_MUSIC, KIOSK_GAMING, KIOSK_LIVE)
-        for (kioskId in kioskOrder) {
-            runCatching {
-                val extractor = ytService.kioskList.getExtractorById(kioskId, null)
-                val info = KioskInfo.getInfo(extractor)
-                info.relatedItems.take(12).forEach { item ->
-                    val mapped = item.toVideoItem()
-                    if (mapped != null && seenUrls.add(mapped.url)) {
-                        combined.add(mapped)
-                    }
-                }
-            }
-        }
-
-        // Fallback if kiosks return empty
-        if (combined.isEmpty()) {
-            return@withContext search("brasil videos em alta 2026", null)
-        }
-
-        FeedPage(items = combined, nextPage = null)
-    }
-
-    suspend fun loadKiosk(kioskId: String, nextPage: Page? = null): FeedPage =
+    suspend fun loadCategory(categoryId: String, nextPage: Page? = null): FeedPage =
         withContext(Dispatchers.IO) {
-            val service = ytService
-            val factory = service.kioskList.getListLinkHandlerFactoryByType(kioskId)
-            val kioskUrl = factory.getUrl(kioskId)
+            val query = categoryQueries[categoryId] ?: categoryQueries.getValue(CATEGORY_HOME)
+            val page = search(query, nextPage)
 
-            if (nextPage == null) {
-                val extractor = service.kioskList.getExtractorById(kioskId, null)
-                val info = KioskInfo.getInfo(extractor)
-                val items = info.relatedItems.mapNotNull { it.toVideoItem() }
-                FeedPage(items = items, nextPage = info.nextPage)
+            // For the Live tab, float active live streams to the top of the first page
+            if (categoryId == CATEGORY_LIVE && nextPage == null) {
+                val sorted = page.items.sortedByDescending { it.isLive }
+                page.copy(items = sorted)
             } else {
-                val more = KioskInfo.getMoreItems(service, kioskUrl, nextPage)
-                val items = more.items.mapNotNull { it.toVideoItem() }
-                FeedPage(items = items, nextPage = more.nextPage)
+                page
             }
         }
 
     suspend fun search(query: String, nextPage: Page? = null): FeedPage =
         withContext(Dispatchers.IO) {
             val service = ytService
-            val qh = service.searchQHFactory.fromQuery(query.trim(), emptyList(), "")
+            val cleanQuery = query.trim()
+            val qh = service.searchQHFactory.fromQuery(cleanQuery, listOf("videos"), "")
 
             if (nextPage == null) {
                 val info = SearchInfo.getInfo(service, qh)
                 val items = info.relatedItems
                     .filterIsInstance<StreamInfoItem>()
                     .mapNotNull { it.toVideoItem() }
-                FeedPage(items = items, nextPage = info.nextPage)
+                if (items.isNotEmpty()) {
+                    FeedPage(items = items, nextPage = info.nextPage)
+                } else {
+                    // Fallback without filter if strict "videos" filter returned empty
+                    val fallbackQh = service.searchQHFactory.fromQuery(cleanQuery, emptyList(), "")
+                    val fallbackInfo = SearchInfo.getInfo(service, fallbackQh)
+                    val fallbackItems = fallbackInfo.relatedItems
+                        .filterIsInstance<StreamInfoItem>()
+                        .mapNotNull { it.toVideoItem() }
+                    FeedPage(items = fallbackItems, nextPage = fallbackInfo.nextPage)
+                }
             } else {
                 val more = SearchInfo.getMoreItems(service, qh, nextPage)
                 val items = more.items

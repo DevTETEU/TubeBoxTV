@@ -218,11 +218,11 @@ class MainActivity : AppCompatActivity() {
         loadJob = lifecycleScope.launch {
             runCatching {
                 when (currentSection) {
-                    Section.HOME -> YouTubeRepository.loadHomeFeed()
-                    Section.MUSIC -> YouTubeRepository.loadKiosk(YouTubeRepository.KIOSK_MUSIC)
-                    Section.GAMING -> YouTubeRepository.loadKiosk(YouTubeRepository.KIOSK_GAMING)
-                    Section.LIVE -> YouTubeRepository.loadKiosk(YouTubeRepository.KIOSK_LIVE)
-                    Section.PODCASTS -> YouTubeRepository.loadKiosk(YouTubeRepository.KIOSK_PODCASTS)
+                    Section.HOME -> YouTubeRepository.loadCategory(YouTubeRepository.CATEGORY_HOME)
+                    Section.MUSIC -> YouTubeRepository.loadCategory(YouTubeRepository.CATEGORY_MUSIC)
+                    Section.GAMING -> YouTubeRepository.loadCategory(YouTubeRepository.CATEGORY_GAMING)
+                    Section.LIVE -> YouTubeRepository.loadCategory(YouTubeRepository.CATEGORY_LIVE)
+                    Section.PODCASTS -> YouTubeRepository.loadCategory(YouTubeRepository.CATEGORY_PODCASTS)
                     Section.SEARCH -> YouTubeRepository.search(currentSearchQuery)
                     Section.HISTORY -> error("Handled above")
                 }
@@ -264,24 +264,26 @@ class MainActivity : AppCompatActivity() {
         } else {
             adapter.submitList(items)
             showGrid()
+            rvVideos.scrollToPosition(0)
         }
     }
 
     private fun loadMoreIfAvailable() {
         val pageToken = nextPage ?: return
         if (isLoadingMore) return
-        if (currentSection == Section.HOME || currentSection == Section.HISTORY) return
+        if (currentSection == Section.HISTORY) return
 
         isLoadingMore = true
         lifecycleScope.launch {
             runCatching {
                 when (currentSection) {
+                    Section.HOME -> YouTubeRepository.loadCategory(YouTubeRepository.CATEGORY_HOME, pageToken)
                     Section.SEARCH -> YouTubeRepository.search(currentSearchQuery, pageToken)
-                    Section.MUSIC -> YouTubeRepository.loadKiosk(YouTubeRepository.KIOSK_MUSIC, pageToken)
-                    Section.GAMING -> YouTubeRepository.loadKiosk(YouTubeRepository.KIOSK_GAMING, pageToken)
-                    Section.LIVE -> YouTubeRepository.loadKiosk(YouTubeRepository.KIOSK_LIVE, pageToken)
-                    Section.PODCASTS -> YouTubeRepository.loadKiosk(YouTubeRepository.KIOSK_PODCASTS, pageToken)
-                    else -> null
+                    Section.MUSIC -> YouTubeRepository.loadCategory(YouTubeRepository.CATEGORY_MUSIC, pageToken)
+                    Section.GAMING -> YouTubeRepository.loadCategory(YouTubeRepository.CATEGORY_GAMING, pageToken)
+                    Section.LIVE -> YouTubeRepository.loadCategory(YouTubeRepository.CATEGORY_LIVE, pageToken)
+                    Section.PODCASTS -> YouTubeRepository.loadCategory(YouTubeRepository.CATEGORY_PODCASTS, pageToken)
+                    Section.HISTORY -> null
                 }
             }.onSuccess { more ->
                 if (more != null) {

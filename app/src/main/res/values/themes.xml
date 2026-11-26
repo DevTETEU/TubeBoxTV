@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.TubeBox" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/bg_root</item>
+        <item name="colorPrimary">@color/accent_red</item>
+        <item name="colorPrimaryDark">@color/bg_root</item>
+        <item name="colorAccent">@color/accent_red</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <style name="Theme.TubeBox.Player" parent="Theme.TubeBox">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

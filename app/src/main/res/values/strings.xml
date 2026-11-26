@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TubeBox</string>
+    <string name="search_hint">Pesquisar no YouTube...</string>
+    <string name="search_button">Buscar</string>
+    <string name="tab_home">Início</string>
+    <string name="tab_music">Música</string>
+    <string name="tab_gaming">Jogos</string>
+    <string name="tab_live">Ao Vivo</string>
+    <string name="tab_podcasts">Podcasts</string>
+    <string name="tab_history">Histórico</string>
+    <string name="loading">Carregando vídeos...</string>
+    <string name="loading_video">Carregando vídeo...</string>
+    <string name="retry">Tentar novamente</string>
+    <string name="empty_history">Nenhum vídeo assistido ainda.\nOs vídeos que você abrir aparecem aqui.</string>
+    <string name="empty_results">Nenhum vídeo encontrado para essa busca.</string>
+    <string name="error_generic">Não foi possível carregar. Verifique sua conexão e tente novamente.</string>
+    <string name="back_to_exit">Pressione Voltar novamente para sair</string>
+    <string name="btn_quality">Qualidade</string>
+    <string name="btn_related">Relacionados</string>
+    <string name="btn_play_pause">Play / Pause</string>
+    <string name="related_title">Próximos vídeos</string>
+    <string name="select_quality">Escolher qualidade</string>
+</resources>

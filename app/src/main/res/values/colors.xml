@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_root">#0B0C14</color>
+    <color name="bg_surface">#151626</color>
+    <color name="bg_card">#1A1B2E</color>
+    <color name="bg_card_focused">#28284A</color>
+    <color name="bg_chip">#1F2036</color>
+    <color name="bg_chip_selected">#7C5CFF</color>
+    <!-- Brand accent (violet). Name kept for compatibility with existing layouts. -->
+    <color name="accent_red">#7C5CFF</color>
+    <color name="accent_red_dark">#5B3DF5</color>
+    <color name="live_red">#E53935</color>
+    <color name="focus_stroke">#FFFFFF</color>
+    <color name="text_primary">#F5F7FA</color>
+    <color name="text_secondary">#A9AEC6</color>
+    <color name="text_hint">#767C99</color>
+    <color name="overlay_dark">#CC000000</color>
+    <color name="badge_bg">#D9000000</color>
+</resources>
